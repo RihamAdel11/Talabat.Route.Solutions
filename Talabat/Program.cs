@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Talabat.Repository.Data;
 
@@ -6,8 +7,9 @@ namespace Talabat
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
+           
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -21,8 +23,27 @@ namespace Talabat
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            var app = builder.Build();
+            var app = builder.Build(); 
+            using var scope = app.Services.CreateScope();
 
+            var servies = scope.ServiceProvider;
+            var _dbContext = servies.GetRequiredService<StoreContext>();
+
+            var loggerFactory = servies.GetRequiredService<ILoggerFactory>();
+            try
+            {
+                await _dbContext.Database.MigrateAsync();//update DataBase
+              
+
+            }
+            catch (Exception ex)
+            {
+                var logger = loggerFactory.CreateLogger<Program>();
+                logger.LogError(ex, " an Error has Occure During Apply Migration");
+
+            }
+           
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
