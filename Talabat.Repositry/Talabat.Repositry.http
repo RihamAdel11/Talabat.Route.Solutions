@@ -1,0 +1,6 @@
+@Talabat.Repositry_HostAddress = http://localhost:5170
+
+GET {{Talabat.Repositry_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
