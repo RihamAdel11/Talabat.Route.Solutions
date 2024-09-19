@@ -11,7 +11,7 @@ using Talabat.Repository.Data;
 namespace Talabat.Repository.Data.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20240919173939_ProductModule")]
+    [Migration("20240919191116_ProductModule")]
     partial class ProductModule
     {
         /// <inheritdoc />

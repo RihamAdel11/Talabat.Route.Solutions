@@ -33,7 +33,7 @@ namespace Talabat
             try
             {
                 await _dbContext.Database.MigrateAsync();//update DataBase
-              
+                await StoreContextSeed.SeedAsync(_dbContext);//Data Seeding
 
             }
             catch (Exception ex)
