@@ -16,7 +16,19 @@ namespace Talabat.Controllers
          
             _productrepo = Productrepo;
         }
+        [HttpGet ]
+        public async Task<ActionResult <IEnumerable <Product>>> GetProducts() {
+            var products=await _productrepo .GetAllAsync();
+            return Ok(products);
 
+        }
+        [HttpGet("id")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            var product = await _productrepo.GetAsync(id);
+            return Ok(product);
+
+        }
 
 
     }
