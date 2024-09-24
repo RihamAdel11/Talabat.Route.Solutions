@@ -59,6 +59,7 @@ namespace Talabat
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 
