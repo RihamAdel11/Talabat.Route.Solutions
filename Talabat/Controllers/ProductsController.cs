@@ -6,6 +6,7 @@ using Talabat.Core.Repositories.Contract;
 using Talabat.Core.Specifications;
 using Talabat.Core.Specifications.Products_Spec;
 using Talabat.DTOs;
+using Talabat.Errors;
 
 namespace Talabat.Controllers
 {
@@ -35,7 +36,7 @@ namespace Talabat.Controllers
             var spec = new ProductWithBrandandCategorySpecification(id);
             var product = await _productrepo.GetWithSpecAsync(spec);
             if (product == null)
-                return NotFound();
+                return NotFound(new ApiResponse(404));
             return Ok(_mapper.Map<Product,ProductToReturnDto>(product));
 
         }
