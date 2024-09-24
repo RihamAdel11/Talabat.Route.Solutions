@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Talabat.Core.Entities;
 using Talabat.Core.Repositories.Contract;
 using Talabat.Core.Specifications;
 using Talabat.Core.Specifications.Products_Spec;
+using Talabat.DTOs;
 
 namespace Talabat.Controllers
 {
@@ -12,25 +14,29 @@ namespace Talabat.Controllers
     {
         
         private readonly IGenericRepositry<Product> _productrepo;
+        private readonly IMapper _mapper;
 
-        public ProductsController(IGenericRepositry<Product> Productrepo)
+        public ProductsController(IGenericRepositry<Product> Productrepo,IMapper mapper)
         {
          
             _productrepo = Productrepo;
+            _mapper = mapper;
         }
         [HttpGet ]
-        public async Task<ActionResult <IEnumerable <Product>>> GetProducts() {
+        public async Task<ActionResult <IEnumerable <ProductToReturnDto >>> GetProducts() {
             var spec=new ProductWithBrandandCategorySpecification ();
             var products=await _productrepo .GetAllWithSpecAsync(spec);
-            return Ok(products);
+            return Ok(_mapper.Map<IEnumerable <Product>,IEnumerable <ProductToReturnDto >>(products ));
 
         }
         [HttpGet("id")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductToReturnDto >> GetProduct(int id)
         {
             var spec = new ProductWithBrandandCategorySpecification(id);
             var product = await _productrepo.GetWithSpecAsync(spec);
-            return Ok(product);
+            if (product == null)
+                return NotFound();
+            return Ok(_mapper.Map<Product,ProductToReturnDto>(product));
 
         }
 
