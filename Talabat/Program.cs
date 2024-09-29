@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Talabat.Core.Entities;
 using Talabat.Core.Repositories.Contract;
 using Talabat.Errors;
+using Talabat.Extensions;
 using Talabat.Helpers;
 using Talabat.MiddelWares;
 using Talabat.Repository;
@@ -27,20 +28,8 @@ namespace Talabat
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
-            builder.Services.AddScoped(typeof(IGenericRepositry<>), typeof(GenericRepository<>));
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddAutoMapper(typeof(MappingProfiles));
-            builder.Services.Configure<ApiBehaviorOptions>(options => { options.InvalidModelStateResponseFactory = (ActionContext) => {
-                var error = ActionContext.ModelState.Where(p => p.Value.Errors.Count() > 0).SelectMany(p => p.Value.Errors).Select(E => E.ErrorMessage).ToList();
-                var response = new ApiValidationErrorResponse()
-                {
-                    Errors = error
-                };
-                return new BadRequestObjectResult(response);
-            }; });
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
+            builder.Services.AddApplicationServices();
+            builder.Services.AddSwaggerServices();
             var app = builder.Build(); 
             using var scope = app.Services.CreateScope();
 
@@ -66,8 +55,7 @@ namespace Talabat
             app.UseMiddleware<ExceptionMiddelWare>();
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerMiddelWares();
             }
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
             app.UseHttpsRedirection();
