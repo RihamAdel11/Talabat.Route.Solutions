@@ -7,6 +7,7 @@ using Talabat.Core.Specifications;
 using Talabat.Core.Specifications.Products_Spec;
 using Talabat.DTOs;
 using Talabat.Errors;
+using Talabat.Helpers;
 
 namespace Talabat.Controllers
 {
@@ -27,13 +28,17 @@ namespace Talabat.Controllers
             _CategoryRepo = CategoryRepo;
             _mapper = mapper;
         }
-        [HttpGet ]
-        [ProducesResponseType(typeof(ProductToReturnDto ),StatusCodes.Status200OK)]
-        [ProducesResponseType (typeof(ApiResponse ),StatusCodes .Status404NotFound)]
-        public async Task<ActionResult <IReadOnlyList<ProductToReturnDto >>> GetProducts(string? sort,int?brandId,int? categoryId) {
-            var spec=new ProductWithBrandandCategorySpecification (sort,brandId,categoryId );
-            var products=await _productrepo .GetAllWithSpecAsync(spec);
-            return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto >>(products ));
+        [HttpGet]
+        [ProducesResponseType(typeof(ProductToReturnDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Paginations<ProductToReturnDto>>> GetProducts([FromQuery] ProductSpecParams productspecparams) {
+            var spec = new ProductWithBrandandCategorySpecification(productspecparams);
+            var products = await _productrepo.GetAllWithSpecAsync(spec);
+            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+            var countspec = new ProductWithBrandandCategorySpecification(productspecparams);
+            var count = await _productrepo.GetCountAsync(countspec); 
+
+            return Ok(new Paginations <ProductToReturnDto >(productspecparams.PageIndex ,productspecparams.pagesize,count,data));
 
         }
         [HttpGet("id")]
