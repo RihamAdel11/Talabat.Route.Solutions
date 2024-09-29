@@ -30,8 +30,8 @@ namespace Talabat.Controllers
         [HttpGet ]
         [ProducesResponseType(typeof(ProductToReturnDto ),StatusCodes.Status200OK)]
         [ProducesResponseType (typeof(ApiResponse ),StatusCodes .Status404NotFound)]
-        public async Task<ActionResult <IReadOnlyList<ProductToReturnDto >>> GetProducts() {
-            var spec=new ProductWithBrandandCategorySpecification ();
+        public async Task<ActionResult <IReadOnlyList<ProductToReturnDto >>> GetProducts(string sort) {
+            var spec=new ProductWithBrandandCategorySpecification (sort);
             var products=await _productrepo .GetAllWithSpecAsync(spec);
             return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto >>(products ));
 
