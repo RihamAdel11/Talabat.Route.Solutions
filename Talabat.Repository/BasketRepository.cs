@@ -19,7 +19,7 @@ namespace Talabat.Repository
             _database = redis.GetDatabase();
             
         }
-        public async Task<bool> DeleteCustomerAsync(string basketId)
+        public async Task<bool> DeleteBasketAsync(string basketId)
         {
            return await _database.KeyDeleteAsync(basketId);
         }
@@ -30,7 +30,7 @@ namespace Talabat.Repository
             return basket.IsNullOrEmpty ? null : JsonSerializer.Deserialize<CustomerBasket>(basket);
         }
 
-        public async Task<CustomerBasket?> UpdateCustomerAsync(CustomerBasket basket)
+        public async Task<CustomerBasket?> UpdateBasketAsync(CustomerBasket basket)
         {
            var CreatedOrUpdated= await _database.StringSetAsync(basket.Id,JsonSerializer .Serialize(basket),TimeSpan .FromDays(30));
             if (CreatedOrUpdated is false) return null;
