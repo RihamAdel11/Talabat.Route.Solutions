@@ -39,34 +39,34 @@ namespace Talabat.Controllers
 
 
         }
-        //[HttpPost("Register")]
-        //public async Task<ActionResult<UserDto>> Register(RegisterDto model)
-        //{
-        //    var user = new ApplicationUser()
-        //    {
-        //        DisplayName = model.DisplayName,
-        //        Email = model.Email,
-        //        UserName = model.Email.Split("@")[0],
-        //        PhoneNumber = model.phone
-        //    };
-        //    var result = await _userManager.CreateAsync(user, model.Password);
-        //    if (!result.Succeeded)
-        //    {
-        //        return BadRequest(new APIValidationErrorResponse()
-        //        {
-        //            Errors = result.Errors.Select(E => E.Description)
-        //        });
+        [HttpPost("Register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto model)
+        {
+            var user = new ApplicationUser()
+            {
+                DisplayName = model.DisplayName,
+                Email = model.Email,
+                UserName = model.Email.Split("@")[0],
+                PhoneNumber = model.phone
+            };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ApiValidationErrorResponse()
+                {
+                    Errors = result.Errors.Select(E => E.Description)
+                });
 
-        //    }
-        //    return Ok(new UserDto()
+            }
+            return Ok(new UserDto()
 
 
-        //    {
-        //        DisplayName = user.DisplayName,
-        //        Email = user.Email,
-        //        Token = await _authServices.CreateTokenAsync(user, _userManager)
-        //    });
-        //}
+            {
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = "this is token"
+            });
+        }
 
 
         //[Authorize]
