@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using Talabat.Core.Entities;
+using Talabat.Core.Entities.Identity;
 using Talabat.Core.Repositories.Contract;
 using Talabat.Errors;
 using Talabat.Extensions;
@@ -42,6 +43,15 @@ namespace Talabat
                 options.UseSqlServer(builder.Configuration .GetConnectionString ("IdentityConnection"));
 
             });
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+                options =>
+                {
+                    //options.Password.RequiredUniqueChars = 2;
+                    //options.Password.RequireDigit = true;
+                    //options.Password.RequireLowercase = true;
+                    //options.Password.RequireUppercase = true;
+
+                }).AddEntityFrameworkStores <ApplicationIdentityDbContext>();
             var app = builder.Build(); 
             using var scope = app.Services.CreateScope();
 
@@ -54,6 +64,8 @@ namespace Talabat
                 await _dbContext.Database.MigrateAsync();//update DataBase
                 await StoreContextSeed.SeedAsync(_dbContext);//Data Seeding
                 await _IdentitydbContext.Database.MigrateAsync();//update DataBase
+                var userManager = servies.GetRequiredService<UserManager<ApplicationUser>>();
+                await ApplicationIdentityDataSeeding.SeedUsersAsync(userManager );
 
             }
             catch (Exception ex)
