@@ -8,6 +8,7 @@ using Talabat.Core.Entities.Identity;
 using Talabat.Core.Repositories.Contract;
 using Talabat.DTOs;
 using Talabat.Errors;
+using Talabat.Extensions;
 
 namespace Talabat.Controllers
 {
@@ -89,14 +90,15 @@ namespace Talabat.Controllers
                 Token = await _authservice .CreateTokenAsync(user, _userManager)
             });
         }
-        //[Authorize]
-        //[HttpGet("address")]
-        //public async Task<ActionResult<AddressDto>> GetUserAddress()
-        //{
-        //    var user = await _userManager.FindByEmailAsync(user);
-        //    return Ok(_mapper.Map<AddressDto>(user.Address));
+        [Authorize]
+        [HttpGet("address")]
+        public async Task<ActionResult<Address>> GetUserAddress()
+        {
+            
+            var user = await _userManager.FindUserWithAddressAsync(User);
+            return Ok(user.Address);
 
-        //}
+        }
         //[Authorize]
         //[HttpPut("address")]
         //public async Task<ActionResult<Address>> UpdateUserAddress(AddressDto address)
@@ -113,9 +115,9 @@ namespace Talabat.Controllers
         //            Errors = res.Errors.Select(E => E.Description)
         //        });
 
-        //    }
-        //    return Ok(address);
+        //        }
+        //        //    return Ok(address);
 
-        //}
+        //        //}
     }
 }
