@@ -1,9 +1,12 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.Text;
 using Talabat.Core.Entities;
 using Talabat.Core.Entities.Identity;
 using Talabat.Core.Repositories.Contract;
@@ -52,47 +55,64 @@ namespace Talabat
                     //options.Password.RequireUppercase = true;
 
                 }).AddEntityFrameworkStores <ApplicationIdentityDbContext>();
-           
-            var app = builder.Build(); 
-            using var scope = app.Services.CreateScope();
-
-            var servies = scope.ServiceProvider;
-            var _dbContext = servies.GetRequiredService<StoreContext>();
-            var _IdentitydbContext = servies.GetRequiredService<ApplicationIdentityDbContext >();
-            var loggerFactory = servies.GetRequiredService<ILoggerFactory>();
-            try
+            builder.Services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
             {
-                await _dbContext.Database.MigrateAsync();//update DataBase
-                await StoreContextSeed.SeedAsync(_dbContext);//Data Seeding
-                await _IdentitydbContext.Database.MigrateAsync();//update DataBase
-                var userManager = servies.GetRequiredService<UserManager<ApplicationUser>>();
-                await ApplicationIdentityDataSeeding.SeedUsersAsync(userManager );
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:ValidIssuser"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:MySecuredAPIUser"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:AuthKey"] ?? string.Empty))
+                ,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                };
+            });
+            var app = builder.Build();
+                using var scope = app.Services.CreateScope();
 
+                var servies = scope.ServiceProvider;
+                var _dbContext = servies.GetRequiredService<StoreContext>();
+                var _IdentitydbContext = servies.GetRequiredService<ApplicationIdentityDbContext>();
+                var loggerFactory = servies.GetRequiredService<ILoggerFactory>();
+                try
+                {
+                    await _dbContext.Database.MigrateAsync();//update DataBase
+                    await StoreContextSeed.SeedAsync(_dbContext);//Data Seeding
+                    await _IdentitydbContext.Database.MigrateAsync();//update DataBase
+                    var userManager = servies.GetRequiredService<UserManager<ApplicationUser>>();
+                    await ApplicationIdentityDataSeeding.SeedUsersAsync(userManager);
+
+                }
+                catch (Exception ex)
+                {
+                    var logger = loggerFactory.CreateLogger<Program>();
+                    logger.LogError(ex, " an Error has Occure During Apply Migration");
+
+                }
+
+
+                // Configure the HTTP request pipeline.
+                app.UseMiddleware<ExceptionMiddelWare>();
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwaggerMiddelWares();
+                }
+                app.UseStatusCodePagesWithReExecute("/errors/{0}");
+                app.UseHttpsRedirection();
+                app.UseStaticFiles();
+
+                app.UseAuthorization();
+
+
+                app.MapControllers();
+
+                app.Run();
             }
-            catch (Exception ex)
-            {
-                var logger = loggerFactory.CreateLogger<Program>();
-                logger.LogError(ex, " an Error has Occure During Apply Migration");
-
-            }
-
-
-            // Configure the HTTP request pipeline.
-            app.UseMiddleware<ExceptionMiddelWare>();
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwaggerMiddelWares();
-            }
-            app.UseStatusCodePagesWithReExecute("/errors/{0}");
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
-        }
     }
 }
