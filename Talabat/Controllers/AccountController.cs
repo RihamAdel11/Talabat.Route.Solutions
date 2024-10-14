@@ -92,32 +92,32 @@ namespace Talabat.Controllers
         }
         [Authorize]
         [HttpGet("address")]
-        public async Task<ActionResult<Address>> GetUserAddress()
+        public async Task<ActionResult<AddressDto>> GetUserAddress()
         {
             
             var user = await _userManager.FindUserWithAddressAsync(User);
-            return Ok(user.Address);
+            return Ok(_mapper.Map<AddressDto>(user.Address));
 
         }
-        //[Authorize]
-        //[HttpPut("address")]
-        //public async Task<ActionResult<Address>> UpdateUserAddress(AddressDto address)
-        //{
-        //    var updatAddres = _mapper.Map<Address>(address);
-        //    var user = await _userManager.FindUserWithAddressByEmail(User);
-        //    updatAddres.Id = user.Address.Id;
-        //    user.Address = updatAddres;
-        //    var res = await _userManager.UpdateAsync(user);
-        //    if (!res.Succeeded)
-        //    {
-        //        return BadRequest(new APIValidationErrorResponse()
-        //        {
-        //            Errors = res.Errors.Select(E => E.Description)
-        //        });
+        [Authorize]
+        [HttpPut("address")]
+        public async Task<ActionResult<Address>> UpdateUserAddress(AddressDto address)
+        {
+            var updatAddres = _mapper.Map<Address>(address);
+            var user = await _userManager.FindUserWithAddressAsync(User);
+            updatAddres.Id = user.Address.Id;
+            user.Address = updatAddres;
+            var res = await _userManager.UpdateAsync(user);
+            if (!res.Succeeded)
+            {
+                return BadRequest(new ApiValidationErrorResponse ()
+                {
+                    Errors = res.Errors.Select(E => E.Description)
+                });
 
-        //        }
-        //        //    return Ok(address);
+            }
+            return Ok(address);
 
-        //        //}
+        }
     }
-}
+    }
