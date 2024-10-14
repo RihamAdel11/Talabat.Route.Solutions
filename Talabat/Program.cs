@@ -52,6 +52,7 @@ namespace Talabat
                     //options.Password.RequireUppercase = true;
 
                 }).AddEntityFrameworkStores <ApplicationIdentityDbContext>();
+           
             var app = builder.Build(); 
             using var scope = app.Services.CreateScope();
 
