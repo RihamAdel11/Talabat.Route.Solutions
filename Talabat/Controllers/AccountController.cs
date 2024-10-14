@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +17,15 @@ namespace Talabat.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAuthService _authservice;
+        private readonly IMapper _mapper;
 
         public AccountController(
-            UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> SignInManager, IAuthService authservice )
+            UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> SignInManager, IAuthService authservice,IMapper mapper )
         {
             _userManager = userManager;
             _signInManager = SignInManager;
            _authservice = authservice;
+            _mapper = mapper;
         }
         [HttpPost("Login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto  model)
@@ -73,24 +76,24 @@ namespace Talabat.Controllers
         }
 
 
-        //[Authorize]
-        //[HttpGet]
-        //public async Task<ActionResult<UserDto>> GetCurrentUser()
-        //{
-        //    var email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
-        //    var user = await _userManager.FindByEmailAsync(email);
-        //    return Ok(new UserDto()
-        //    {
-        //        DisplayName = user?.DisplayName ?? string.Empty,
-        //        Email = user?.Email ?? string.Empty,
-        //        Token = await _authServices.CreateTokenAsync(user, _userManager)
-        //    });
-        //}
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
+            var user = await _userManager.FindByEmailAsync(email);
+            return Ok(new UserDto()
+            {
+                DisplayName = user?.DisplayName ?? string.Empty,
+                Email = user?.Email ?? string.Empty,
+                Token = await _authservice .CreateTokenAsync(user, _userManager)
+            });
+        }
         //[Authorize]
         //[HttpGet("address")]
         //public async Task<ActionResult<AddressDto>> GetUserAddress()
         //{
-        //    var user = await _userManager.FindUserWithAddressByEmail(User);
+        //    var user = await _userManager.FindByEmailAsync(user);
         //    return Ok(_mapper.Map<AddressDto>(user.Address));
 
         //}
