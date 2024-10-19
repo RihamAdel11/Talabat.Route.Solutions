@@ -6,12 +6,29 @@ using System.Threading.Tasks;
 
 namespace Talabat.Core.Entities.Order_Aggregate
 {
-    public  class Order:BaseEntity 
+    public  class Order:BaseEntity
     {
+        private  Order()
+        {
+            
+        }
+        public Order(string buyerEmail, Address shippingAddress, DeliveryMethod? deliverymethod, ICollection<OrderItem> items,
+           decimal subtotal/*, string paymentIntentId*/)
+        {
+            BuyerEmail = buyerEmail;
+            ShippingAddress = shippingAddress;
+            DeliveryMethod = deliverymethod;
+            Items = items;
+
+            Subtotal = subtotal;
+            //PaymentIntendId = paymentIntentId;
+
+
+        }
         public string BuyerEmail { get; set; } = null!;
         public DateTimeOffset  OrderDate { get; set;}= DateTimeOffset.UtcNow;
         public OrderStatus Status { get; set; } = OrderStatus.pending;
-        public Address shippingAddress { get; set; } = null!;
+        public Address ShippingAddress { get; set; } = null!;
         //public int DeliveryMethodId{ get; set; }
         public DeliveryMethod DeliveryMethod { get; set; } = null!;//nav property
         public ICollection<OrderItem> Items { get; set; } = new HashSet<OrderItem>();
