@@ -44,13 +44,13 @@ namespace Talabat.Service.OrderServices
 
             var deliveryMethods = await _unitofwork.Repositry<DeliveryMethod>().GetAsync(deliveryMethodId);
             var orderRepo = _unitofwork.Repositry<Order>();
-            //var spec = new OrderSpecifications (basket?.);
-            //var existingOrder = await orderRepo.GetWithSpecAsync(spec);
-            //if (existingOrder != null)
-            //{
-            //    orderRepo.Delete(existingOrder);
-            //    //await _paymentServices.CreateOrUpdatePaymentIntent(BasketId);
-            //}
+            var spec = new OrderSpecifications(basket?.Id);
+            var existingOrder = await orderRepo.GetWithSpecAsync(spec);
+            if (existingOrder != null)
+            {
+                orderRepo.Delete(existingOrder);
+                //await _paymentServices.CreateOrUpdatePaymentIntent(BasketId);
+            }
 
 
             var order = new Order(
@@ -64,26 +64,29 @@ namespace Talabat.Service.OrderServices
                 );
 
 
-            _unitofwork.Repositry<Order>().Add(order);
+            _unitofwork.Repositry<Order>().AddAsync(order);
             var result = await _unitofwork.CompleteAsync();
             if (result <= 0) return null;
             return order;
          
         }
 
-        public Task<IReadOnlyList<DeliveryMethod>> GetDeliveryMethodAsync()
-        {
-            throw new NotImplementedException();
-        }
-
+        public async Task<IReadOnlyList<DeliveryMethod>> GetDeliveryMethodAsync()
+            => await _unitofwork.Repositry<DeliveryMethod>().GetAllAsync();
         public Task<Order?> GetOrderByIdForUserAsync(int OrderId, string BuyerEmail)
         {
-            throw new NotImplementedException();
+            var orderRepo = _unitofwork.Repositry<Order>();
+            var orderSpec = new OrderSpecifications(OrderId, BuyerEmail);
+            var order = orderRepo.GetWithSpecAsync(orderSpec);
+            return order;
         }
 
-        public Task<IReadOnlyList<Order>> GetOrdersForUserAsync(string buyerEmail)
+        public async Task<IReadOnlyList<Order>> GetOrdersForUserAsync(string buyerEmail)
         {
-            throw new NotImplementedException();
+            var ordersRepo = _unitofwork.Repositry<Order>();
+            var spec = new OrderSpecifications(buyerEmail);
+            var orders = await ordersRepo.GetAllWithSpecAsync(spec);
+            return orders;
         }
     }
 }
