@@ -13,7 +13,7 @@ namespace Talabat.Repository.Data.Config.Order_Config
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.OwnsOne(order => order.shippingAddress, ShippingAddress => ShippingAddress.WithOwner());
+            builder.OwnsOne(order => order.ShippingAddress, ShippingAddress => ShippingAddress.WithOwner());
             builder.Property(order => order.Status).HasConversion((OStatus) => OStatus.ToString(), (OStatus) => (OrderStatus)Enum.Parse(typeof(OrderStatus), OStatus));
            
             builder.Property(order => order.Subtotal).HasColumnType("decimal(12,2)");

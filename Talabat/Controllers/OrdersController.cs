@@ -9,7 +9,9 @@ using Talabat.Errors;
 
 namespace Talabat.Controllers
 {
-    [Authorize ]
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [Authorize]
     public class OrdersController : BaseApiController
     {
         private readonly IOrderService _orderservices;
@@ -23,7 +25,6 @@ namespace Talabat.Controllers
         [ProducesResponseType(typeof(OrderToReturnDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         [HttpPost]
-        
         public async Task<ActionResult<OrderToReturnDto>> CreateOrder(OrderDto orderDto)
         {
             var address = _mapper.Map<AddressDto, Address>(orderDto.ShippingAddress);

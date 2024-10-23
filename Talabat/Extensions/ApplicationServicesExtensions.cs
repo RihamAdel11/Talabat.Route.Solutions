@@ -6,6 +6,8 @@ using Talabat.Errors;
 using Talabat.Helpers;
 using Talabat.Repository;
 using Talabat.Service.AuthServices;
+using Talabat.Service.OrderServices;
+using Talabat.Service.ProductService;
 
 namespace Talabat.Extensions
 {
@@ -13,7 +15,8 @@ namespace Talabat.Extensions
     {
         public static IServiceCollection  AddApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped(typeof(IOrderService), typeof(IOrderService ));
+            services.AddScoped(typeof(IProductServices), typeof(ProductServices));
+            services.AddScoped(typeof(IOrderService), typeof(OrderServices ));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped(typeof(IBasketRepository ), typeof(BasketRepository ));
             services.AddScoped(typeof(IGenericRepositry<>), typeof(GenericRepository<>));
